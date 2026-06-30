@@ -19,11 +19,6 @@ tabsBtn.addEventListener("click", function(){
         render(myLeads)
     })
 })
-inputBtn.addEventListener("click", function() {
-    myLeads.push(inputEl.value)
-    inputEl.value = ""
-    renderLeads()
-})
 
 function render(leads) {
     let listItems = ""
@@ -39,11 +34,11 @@ function render(leads) {
     ulEl.innerHTML = listItems  
 }
 
-deleteBtn.addEventListener("dblclick", function()){
+deleteBtn.addEventListener("dblclick", function(){
     localStorage.clear()
     myLeads = []
     render(myLeads)
-}
+})
 
 inputBtn.addEventListener("click", function(){
     myLeads.push(inputEl.value)

@@ -1,24 +1,23 @@
-let myLeads = []
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js"
+import { getDatabase,
+         ref,
+         push,
+         remove,
+         onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js"
+
+const firebaseConfig = {  
+    databaseURL: "https://leads-tracker-app-18786-default-rtdb.firebaseio.com/"
+}
+
+const app = initializeApp(firebaseConfig)
+const database = getDatabase(app)
+const referenceInDB = ref(database, "leads")
+
 const inputEl = document.getElementById("input-el")
 const inputBtn = document.getElementById("input-btn")
 const ulEl = document.getElementById("ul-el")
 const deleteBtn = document.getElementById("delete-btn")
-const leadsFromLocalStorage = JSON.parse(localStorage.getItem("myLeads"))
-const tabsBtn = document.getElementById("tab-btn")
 
-
-if (leadsFromLocalStorage){
-    myLeads = leadsFromLocalStorage
-    render(myLeads)
-}
-
-tabsBtn.addEventListener("click", function(){
-    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
-        myLeads.push(tabs[0].url)
-        localStorage.setItem("myLeads", JSON.stringify(myLeads))
-        render(myLeads)
-    })
-})
 
 function render(leads) {
     let listItems = ""
@@ -31,18 +30,24 @@ function render(leads) {
             </li>
         `
     }
-    ulEl.innerHTML = listItems  
+    ulEl.innerHTML = listItems
 }
 
-deleteBtn.addEventListener("dblclick", function(){
-    localStorage.clear()
-    myLeads = []
-    render(myLeads)
+onValue(referenceInDB, function(snapshot) {
+    const snapshotDoesExist = snapshot.exists()
+    if (snapshotDoesExist) {
+        const snapshotValues = snapshot.val()
+        const leads = Object.values(snapshotValues)
+        render(leads)
+    }
 })
 
-inputBtn.addEventListener("click", function(){
-    myLeads.push(inputEl.value)
-    inputEl.value = ""
-    localStorage.setItem("myLeads", JSON.stringify(myLeads))
-    render(myLeads)
+deleteBtn.addEventListener("dblclick", function() {
+    remove(referenceInDB)
+    ulEl.innerHTML = ""
+})
+
+inputBtn.addEventListener("click", function() {
+    push(referenceInDB, inputEl.value)
+    inputEl.value = "" 
 })
